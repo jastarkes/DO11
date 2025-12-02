@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-service
+  namespace: hotel-booking
+  labels:
+    app: report-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: report-service
+  template:
+    metadata:
+      labels:
+        app: report-service
+    spec:
+      containers:
+      - name: report-service
+        image: report-service:latest
+        imagePullPolicy: Never        
+        ports:
+        - containerPort: 8086
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets
+        - secretRef:
+            name: jwt-keys
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: report-service
+  namespace: hotel-booking
+  labels:
+    app: report-service
+spec:
+  ports:
+  - port: 8086
+    targetPort: 8086
+  selector:
+    app: report-service

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-service
+  namespace: hotel-booking
+  labels:
+    app: booking-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      containers:
+      - name: booking-service
+        image: booking-service:latest
+        imagePullPolicy: Never        
+        ports:
+        - containerPort: 8083
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets
+        - secretRef:
+            name: jwt-keys
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: booking-service
+  namespace: hotel-booking
+  labels:
+    app: booking-service
+spec:
+  ports:
+  - port: 8083
+    targetPort: 8083
+  selector:
+    app: booking-service

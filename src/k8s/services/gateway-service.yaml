@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-service
+  namespace: hotel-booking
+  labels:
+    app: gateway-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-service
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+    spec:
+      containers:
+      - name: gateway-service
+        image: gateway-service:latest
+        imagePullPolicy: Never        
+        ports:
+        - containerPort: 8087
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets
+        - secretRef:
+            name: jwt-keys
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  namespace: hotel-booking
+  labels:
+    app: gateway-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8087
+    targetPort: 8087
+  selector:
+    app: gateway-service
